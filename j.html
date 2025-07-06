@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Join Team</title>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .logo {
+      width: 60px;
+      margin-bottom: 15px;
+    }
+    h2 {
+      color: #4472C4;
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+    input {
+      width: calc(100% - 24px);
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      font-size: 1em;
+      color: #333;
+    }
+    input:focus {
+      border-color: #4472C4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(68, 114, 196, 0.2);
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+    #joinTeamBtn {
+      background-color: #4472C4;
+      color: white;
+    }
+    #joinTeamBtn:hover:not(:disabled) {
+      background-color: #3963B5;
+      transform: translateY(-1px);
+    }
+    #joinTeamBtn:disabled {
+      background-color: #a8b9e6;
+      cursor: not-allowed;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    #goToMainPageBtn {
+      background-color: #28a745;
+      color: white;
+      margin-top: 20px;
+      display: none;
+    }
+    #goToMainPageBtn:hover {
+      background-color: #218838;
+      transform: translateY(-1px);
+    }
+    #status {
+      margin-top: 25px;
+      font-size: 0.95em;
+      min-height: 20px;
+      font-weight: 500;
+    }
+    #status.error {
+      color: #dc3545;
+    }
+    #status.success {
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="Grindzone Logo" class="logo">
+    <h2>Join a Team</h2>
+    <input id="teamCode" placeholder="Team Code" />
+    <button id="joinTeamBtn" disabled>Join Team</button>
+    <p id="status"></p>
+    <button id="goToMainPageBtn">Go to Main Page</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, doc, getDoc, updateDoc, collection, query, where,
+      getDocs, arrayUnion, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged, signInAnonymously
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const teamCodeInput = document.getElementById("teamCode");
+    const joinTeamButton = document.getElementById("joinTeamBtn");
+    const statusDiv = document.getElementById("status");
+    const goToMainPageButton = document.getElementById("goToMainPageBtn");
+
+    let currentUser = null;
+    let userData = null;
+    let gameUid = null;
+
+    function showStatus(message, isError = false) {
+      statusDiv.textContent = message;
+      statusDiv.className = isError ? "error" : "success";
+      setTimeout(() => {
+        statusDiv.textContent = '';
+        statusDiv.className = '';
+      }, 4000);
+    }
+
+    async function joinTeam() {
+      const teamCode = teamCodeInput.value.trim().toUpperCase();
+      if (!teamCode) {
+        showStatus("❗ Please enter a Team Code.", true);
+        return;
+      }
+      if (!currentUser || !gameUid) {
+        showStatus("❗ User info not loaded.", true);
+        return;
+      }
+
+      try {
+        const teamRef = doc(db, "teams", teamCode);
+        const teamDoc = await getDoc(teamRef);
+
+        if (!teamDoc.exists()) {
+          showStatus("❗ No team found with that code.", true);
+          return;
+        }
+
+        const teamData = teamDoc.data();
+
+        if (userData.teamCode && userData.teamCode !== "") {
+          showStatus(`❗ Already in team "${userData.teamName || userData.teamCode}".`, true);
+          return;
+        }
+
+        // Add Game UID to team members
+        await updateDoc(teamRef, {
+          members: arrayUnion(gameUid),
+          updatedAt: serverTimestamp()
+        });
+
+        // Update user doc using game UID
+        const userRef = doc(db, "users", gameUid);
+        await updateDoc(userRef, {
+          teamCode: teamCode,
+          teamName: teamData.teamName || null,
+          teamCreatorUID: teamData.leaderUID || null,
+          isTeamCreator: false
+        });
+
+        showStatus(`✅ Joined team "${teamData.teamName || teamCode}" successfully!`);
+        goToMainPageButton.style.display = 'block';
+
+      } catch (err) {
+        console.error("Join Error:", err);
+        showStatus("❌ Error joining team: " + err.message, true);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (err) {
+          showStatus("Failed to sign in. Check connection.", true);
+        }
+        return;
+      }
+
+      currentUser = user;
+      joinTeamButton.disabled = false;
+
+      try {
+        const q = query(collection(db, "users"), where("firebaseUID", "==", user.uid));
+        const querySnap = await getDocs(q);
+
+        if (querySnap.empty) {
+          showStatus("❗ User profile not found. Please complete your player info first.", true);
+          joinTeamButton.disabled = true;
+          return;
+        }
+
+        const docSnap = querySnap.docs[0];
+        userData = docSnap.data();
+        gameUid = userData.uid;
+
+        if (userData.teamCode) {
+          showStatus(`You are currently in team "${userData.teamName || userData.teamCode}".`);
+          goToMainPageButton.style.display = 'block';
+        }
+
+      } catch (err) {
+        console.error("Profile Fetch Error:", err);
+        showStatus("Error loading user profile.", true);
+        joinTeamButton.disabled = true;
+      }
+    });
+
+    joinTeamButton.addEventListener("click", joinTeam);
+    goToMainPageButton.addEventListener("click", () => {
+      window.location.href = "main.html";
+    });
+  </script>
+</body>
+</html>

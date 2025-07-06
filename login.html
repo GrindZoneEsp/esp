@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | GRINDZONE</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 360px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .logo span {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #5c7cfa;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #f1f3f5;
+      color: #212529;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #5c7cfa;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #5c7cfa;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #4c6ef5;
+    }
+
+    .forgot-password {
+      margin-top: 10px;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .forgot-password a {
+      color: #5c7cfa;
+      text-decoration: none;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .footer a {
+      color: #5c7cfa;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo">
+      <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GRINDZONE Logo" />
+      <div><span>GRINDZONE</span></div>
+    </div>
+
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+
+    <div class="forgot-password">
+      <a href="forgot.html">Forgot Password?</a>
+    </div>
+
+    <button onclick="loginUser()">Login</button>
+
+    <div class="footer">
+      Don’t have an account? <a href="index.html">Sign up</a>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function loginUser() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          alert("Login successful!");
+          window.location.href = "main.html";
+        })
+        .catch(error => {
+          if (
+            error.code === "auth/wrong-password" ||
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/invalid-email"
+          ) {
+            alert("Email or password is incorrect.");
+          } else {
+            alert("Error: " + error.message);
+          }
+        });
+    }
+  </script>
+</body>
+</html>

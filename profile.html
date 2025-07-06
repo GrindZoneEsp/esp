@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | GRINDZONE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .card {
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .profile-logo {
+      width: 60px;
+      height: 60px;
+      display: block;
+      margin: 0 auto 16px;
+    }
+
+    .title {
+      text-align: center;
+      color: #4f6ef7;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .section {
+      margin-bottom: 1.8rem;
+    }
+
+    .section h3 {
+      font-size: 1.1rem;
+      color: #374151;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0.4rem;
+    }
+
+    .field {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 0.95rem;
+      color: #4b5563;
+    }
+
+    .field input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      margin-left: 10px;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+
+    .value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      background-color: #4f6ef7;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn:hover {
+      background-color: #3e58d7;
+    }
+
+    .btn-red {
+      background-color: #ef4444;
+    }
+
+    .btn-red:hover {
+      background-color: #dc2626;
+    }
+
+    #statusMessage {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* Modal styles (copied from teaminfo.html for consistency) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 25px;
+      border: 1px solid #888;
+      width: 90%; /* Responsive width */
+      max-width: 400px; /* Max width for larger screens */
+      border-radius: 10px; /* Rounded corners */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Shadow for depth */
+      text-align: center;
+      animation: fadeIn 0.3s ease-out; /* Fade-in animation */
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.5em;
+    }
+
+    .modal-content p {
+      margin-bottom: 20px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .modal-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal-buttons .confirm-btn {
+      background-color: #28a745; /* Green for confirm */
+      color: white;
+    }
+
+    .modal-buttons .confirm-btn:hover {
+      background-color: #218838;
+    }
+
+    .modal-buttons .cancel-btn {
+      background-color: #6c757d; /* Gray for cancel */
+      color: white;
+    }
+
+    .modal-buttons .cancel-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .modal-buttons .ok-btn {
+      background-color: #007bff; /* Blue for OK */
+      color: white;
+    }
+
+    .modal-buttons .ok-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Fade-in animation for modal */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- ✅ Custom GRINDZONE Logo -->
+    <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GrindZone Logo" class="profile-logo" />
+    
+    <h2 class="title">My Profile</h2>
+
+    <div class="section">
+      <h3>User Details</h3>
+      <div class="field"><span>Email:</span> <span id="userEmail" class="value">-</span></div>
+      <div class="field"><span>UID:</span> <span id="userUid" class="value">-</span></div>
+      <div class="field"><span>IGN:</span> <input type="text" id="userIgn" placeholder="In-Game Name" /></div>
+      <div class="field"><span>Real Name:</span> <input type="text" id="userRealName" placeholder="Your Name" /></div>
+      <button class="btn" id="saveProfileBtn">Save Profile</button>
+    </div>
+
+    <!-- Added id="teamInfoSection" to this div -->
+    <div class="section" id="teamInfoSection">
+      <h3>Team Information</h3>
+      <div class="field"><span>Team Code:</span> <span id="userTeamCode" class="value">-</span></div>
+      <div class="field"><span>Team Name:</span> <span id="userTeamName" class="value">-</span></div>
+      <div class="field"><span>Team Leader:</span> <span id="isTeamCreator" class="value">-</span></div>
+      <button class="btn btn-red" id="leaveTeamBtn" disabled>Leave Team</button>
+    </div>
+
+    <div class="section">
+      <h3>Game Stats</h3>
+      <div class="field"><span>Roles:</span> <span id="userRoles" class="value">-</span></div>
+      <div class="field"><span>Total Kills:</span> <span id="playerKills" class="value">-</span></div>
+      <div class="field"><span>Matches Played:</span> <span id="playerMatches" class="value">-</span></div>
+      <div class="field"><span>Avg. Kills:</span> <span id="avgKills" class="value">-</span></div>
+    </div>
+
+    <div id="statusMessage"></div>
+  </div>
+
+  <!-- Custom Modal UI (copied from teaminfo.html for consistency) -->
+  <div id="customModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-buttons">
+        <button id="modalConfirmBtn" class="confirm-btn" style="display: none;">Confirm</button>
+        <button id="modalCancelBtn" class="cancel-btn" style="display: none;">Cancel</button>
+        <button id="modalOkBtn" class="ok-btn" style="display: none;">OK</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+    getFirestore, doc, getDoc, updateDoc, setDoc, collection,
+    query, where, getDocs, serverTimestamp, arrayRemove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// Global variables for Firebase services (initialized later)
+let app;
+let db;
+let auth;
+
+// Global variables to store current user and their data
+let currentUser = null;
+let currentLoggedUserData = null;
+let gameUid = null;
+
+// Get references to DOM elements (defined globally for broader access)
+const userUidEl = document.getElementById("userUid");
+const userEmailEl = document.getElementById("userEmail");
+const userIgnInput = document.getElementById("userIgn");
+const userRealNameInput = document.getElementById("userRealName");
+const saveProfileBtn = document.getElementById("saveProfileBtn");
+
+const userTeamCodeEl = document.getElementById("userTeamCode");
+const userTeamNameEl = document.getElementById("userTeamName");
+const isTeamCreatorEl = document.getElementById("isTeamCreator");
+const leaveTeamBtn = document.getElementById("leaveTeamBtn");
+const teamInfoSection = document.getElementById("teamInfoSection");
+
+const userRolesEl = document.getElementById("userRoles");
+const playerKillsEl = document.getElementById("playerKills");
+const playerMatchesEl = document.getElementById("playerMatches");
+const avgKillsEl = document.getElementById("avgKills");
+
+const statusMessageEl = document.getElementById("statusMessage");
+
+// Modal elements (defined globally)
+const customModal = document.getElementById("customModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalMessage = document.getElementById("modalMessage");
+const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+const modalCancelBtn = document.getElementById("modalCancelBtn");
+const modalOkBtn = document.getElementById("modalOkBtn");
+
+// Function to show a custom alert/message modal (moved to global scope)
+function showMessageModal(title, message, type = 'alert') {
+  return new Promise((resolve) => {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+
+    // Reset button visibility
+    modalConfirmBtn.style.display = 'none';
+    modalCancelBtn.style.display = 'none';
+    modalOkBtn.style.display = 'none';
+
+    // Set up buttons based on type
+    if (type === 'confirm') {
+      modalConfirmBtn.style.display = 'inline-block';
+      modalCancelBtn.style.display = 'inline-block';
+      modalConfirmBtn.onclick = () => {
+        customModal.style.display = 'none';
+        resolve(true);
+      };
+      modalCancelBtn.onclick = () => {
+        customModal.style.display = 'none';
+        resolve(false);
+      };
+    } else { // 'alert' type
+      modalOkBtn.style.display = 'inline-block';
+      modalOkBtn.onclick = () => {
+        customModal.style.display = 'none';
+        resolve(true); // Always resolve true for alert, as there's no "cancel"
+      };
+    }
+    customModal.style.display = 'flex'; // Use flex to center content
+  });
+}
+
+// Function to show a brief status message (moved to global scope)
+function showStatusMessage(msg, isError = false) {
+    if (statusMessageEl) { // Ensure statusMessageEl exists before trying to use it
+        statusMessageEl.textContent = msg;
+        statusMessageEl.style.color = isError ? '#f04747' : '#43b581';
+        setTimeout(() => { statusMessageEl.textContent = ''; }, 4000);
+    } else {
+        console.warn("Status message element not found, logging message instead:", msg);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+        authDomain: "grindzone-26ee9.firebaseapp.com",
+        projectId: "grindzone-26ee9",
+        storageBucket: "grindzone-26ee9.appspot.com",
+        messagingSenderId: "457720848561",
+        appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+
+    // setTeamSectionEnabled relies on DOM elements, so it stays within DOMContentLoaded
+    function setTeamSectionEnabled(enabled, inTeam) {
+        if (teamInfoSection) { // Defensive check
+            teamInfoSection.style.display = inTeam ? '' : 'none';
+        }
+        leaveTeamBtn.disabled = !enabled || !inTeam;
+    }
+
+    async function loadProfileData(user) {
+        if (!user) return;
+
+        // 🔄 Fix: Lookup user doc using firebaseUID
+        const q = query(collection(db, "users"), where("firebaseUID", "==", user.uid));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            await showMessageModal("User Profile", "User profile not found. Please complete your info.", true); // Using custom modal
+            return;
+        }
+
+        const userDoc = snap.docs[0];
+        currentLoggedUserData = userDoc.data();
+        gameUid = currentLoggedUserData.uid;
+
+        const userRef = doc(db, "users", gameUid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            await showMessageModal("User Data", "No user data found for your game UID.", true); // Using custom modal
+            return;
+        }
+
+        currentLoggedUserData = userSnap.data();
+
+        // ✅ Display
+        userUidEl.textContent = currentLoggedUserData.uid || "-";
+        userEmailEl.textContent = currentLoggedUserData.email || "Anonymous";
+        userIgnInput.value = currentLoggedUserData.ign || "";
+        userRealNameInput.value = currentLoggedUserData.realName || "";
+
+        const roles = currentLoggedUserData.roles || [];
+        userRolesEl.textContent = roles.length > 0 ? roles.join(', ') : 'None';
+
+        playerKillsEl.textContent = currentLoggedUserData.playerKills ?? 0;
+        playerMatchesEl.textContent = currentLoggedUserData.playerMatches ?? 0;
+        avgKillsEl.textContent = currentLoggedUserData.playerMatches
+            ? (currentLoggedUserData.playerKills / currentLoggedUserData.playerMatches).toFixed(2)
+            : 'N/A';
+
+        if (currentLoggedUserData.teamCode) {
+            userTeamCodeEl.textContent = currentLoggedUserData.teamCode;
+            isTeamCreatorEl.textContent = currentLoggedUserData.isTeamCreator ? "Yes" : "No";
+
+            const teamRef = doc(db, "teams", currentLoggedUserData.teamCode);
+            const teamSnap = await getDoc(teamRef);
+            userTeamNameEl.textContent = teamSnap.exists() ? (teamSnap.data().teamName || "-") : "Not Found";
+
+            setTeamSectionEnabled(true, true);
+        } else {
+            userTeamCodeEl.textContent = "-";
+            userTeamNameEl.textContent = "Not in a team";
+            isTeamCreatorEl.textContent = "-";
+            setTeamSectionEnabled(true, false);
+        }
+    }
+
+    async function saveProfile() {
+        if (!gameUid) {
+            await showMessageModal("Save Profile", "Cannot save: UID not found.", true); // Using custom modal
+            return;
+        }
+
+        const newIgn = userIgnInput.value.trim();
+        const newRealName = userRealNameInput.value.trim();
+
+        if (!newIgn || !newRealName) {
+            await showMessageModal("Save Profile", "IGN and Real Name are required.", true); // Using custom modal
+            return;
+        }
+
+        const userRef = doc(db, "users", gameUid);
+        await updateDoc(userRef, {
+            ign: newIgn,
+            realName: newRealName,
+            updatedAt: serverTimestamp()
+        });
+
+        await showStatusMessage("Profile updated successfully!"); // Using custom modal
+    }
+
+    async function requestLeaveTeam() {
+        if (!gameUid || !currentLoggedUserData?.teamCode) {
+            await showMessageModal("Leave Team", "You're not in a team.", true); // Using custom modal
+            return;
+        }
+
+        if (currentLoggedUserData.isTeamCreator) {
+            await showMessageModal("Leave Team", "Team leaders must disband the team.", true); // Using custom modal
+            return;
+        }
+
+        // Replaced confirm() with showMessageModal
+        const confirmLeave = await showMessageModal("Confirm Leave", "Are you sure you want to leave your team?", 'confirm');
+        if (!confirmLeave) return;
+
+        const teamRef = doc(db, "teams", currentLoggedUserData.teamCode);
+        const userRef = doc(db, "users", gameUid);
+
+        try {
+            await updateDoc(teamRef, {
+                members: arrayRemove(gameUid),
+                updatedAt: serverTimestamp()
+            });
+
+            await updateDoc(userRef, {
+                teamCode: "",
+                teamName: "",
+                isTeamCreator: false,
+                updatedAt: serverTimestamp()
+            });
+
+            await showStatusMessage("You left the team.");
+            await loadProfileData(currentUser); // Reload profile data to update UI
+        } catch (error) {
+            console.error("Error leaving team:", error);
+            await showStatusMessage("Error leaving team. Please try again.", true);
+        }
+    }
+
+    saveProfileBtn.addEventListener('click', saveProfile);
+    leaveTeamBtn.addEventListener('click', requestLeaveTeam);
+
+    onAuthStateChanged(auth, async user => {
+        if (user) {
+            currentUser = user;
+            await loadProfileData(user);
+        } else {
+            try {
+                await signInAnonymously(auth);
+            } catch (err) {
+                console.error("Anonymous sign-in failed", err);
+                await showStatusMessage("Sign-in error. Check connection.", true); // Using custom modal
+            }
+        }
+    });
+
+});
+</script>
+
+
+</body>
+</html>

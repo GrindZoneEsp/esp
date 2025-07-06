@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Info | GrindZone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Basic styling for the body */
+    body {
+      background-color: #f9fafe;
+      font-family: 'Inter', sans-serif;
+      color: #1f2937;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Styling for headings */
+    h2 {
+      color: #2563eb;
+      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    /* Styling for labels */
+    .label {
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Styling for info containers */
+    .info, .team-record-item { /* Apply similar styling to info and team-record-item */
+      margin-bottom: 10px;
+      background-color: #e2e8f0;
+      padding: 10px 15px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* New styling for the Team Records card container */
+    .team-records-card {
+      background-color: #ffffff; /* White background for the card */
+      border: 1px solid #cbd5e1;
+      border-radius: 10px; /* More rounded corners for the card */
+      padding: 20px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Stronger shadow for the card */
+      display: grid; /* Use grid for layout */
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Responsive grid columns */
+      gap: 15px; /* Gap between grid items */
+    }
+
+    .team-records-card h3 {
+      grid-column: 1 / -1; /* Make heading span all columns */
+      text-align: center;
+      color: #2563eb;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+
+    /* Styling for tables */
+    table {
+      width: 100%;
+      max-width: 800px;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Styling for table headers and cells */
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Styling for table headers */
+    th {
+      background-color: #3b82f6;
+      color: white;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Styling for table data cells */
+    td {
+      background-color: #f1f5f9;
+    }
+
+    /* Styling for buttons */
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin: 5px;
+    }
+
+    /* Specific styling for remove button */
+    #removeMemberByUidBtn {
+      background-color: #f97316;
+    }
+
+    #removeMemberByUidBtn:hover {
+      background-color: #ea580c;
+      transform: translateY(-2px);
+    }
+
+    /* Specific styling for disband button */
+    #disbandTeamBtn {
+      background-color: #ef4444;
+    }
+
+    #disbandTeamBtn:hover {
+      background-color: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    /* Styling for button group container */
+    .btn-group {
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 25px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.5em;
+    }
+
+    .modal-content p {
+      margin-bottom: 20px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .modal-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal-buttons .confirm-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .modal-buttons .confirm-btn:hover {
+      background-color: #218838;
+    }
+
+    .modal-buttons .cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .modal-buttons .cancel-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .modal-buttons .ok-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .modal-buttons .ok-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Fade-in animation for modal */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      .info, .team-records-card, table, .btn-group {
+        width: 95%;
+      }
+      .team-records-card {
+        grid-template-columns: 1fr; /* Stack items on small screens */
+      }
+      th, td {
+        padding: 8px 10px;
+        font-size: 0.9em;
+      }
+      button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+      }
+      .modal-content {
+        width: 95%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Team Info</h2>
+
+  <div class="info"><span class="label">Team Name:</span> <span id="teamName">Loading...</span></div>
+  <div class="info"><span class="label">Team Code:</span> <span id="teamCode">Loading...</span></div>
+  <div class="info"><span class="label">Leader UID:</span> <span id="leaderUID">Loading...</span></div>
+
+  <div class="team-records-card">
+    <h3>Team Records</h3>
+    <div class="team-record-item"><span class="label">Total Kills:</span> <span id="teamKills">Loading...</span></div>
+    <div class="team-record-item"><span class="label">Total Matches:</span> <span id="teamMatches">Loading...</span></div>
+    <div class="team-record-item"><span class="label">Ranking Points:</span> <span id="teamRankingPoints">Loading...</span></div>
+    <div class="team-record-item"><span class="label">Total Wins:</span> <span id="teamWins">Loading...</span></div>
+    <div class="team-record-item" style="grid-column: 1 / -1;"><span class="label">Team Created:</span> <span id="teamCreatedAt">Loading...</span></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>In-Game Name</th>
+        <th>UID</th>
+        <th>Kills</th>
+        <th>Matches</th>
+      </tr>
+    </thead>
+    <tbody id="teamMembersList">
+      <tr><td colspan="4">Loading members...</td></tr>
+    </tbody>
+  </table>
+
+  <div class="btn-group" id="leaderActions">
+    <button id="removeMemberByUidBtn" style="display: none;">Remove Member</button>
+    <button id="disbandTeamBtn" style="display: none;">Disband Team</button>
+  </div>
+
+  <div id="customModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-buttons">
+        <button id="modalConfirmBtn" class="confirm-btn" style="display: none;">Confirm</button>
+        <button id="modalCancelBtn" class="cancel-btn" style="display: none;">Cancel</button>
+        <button id="modalOkBtn" class="ok-btn" style="display: none;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, doc, getDoc, collection, query, where, getDocs,
+      updateDoc, arrayRemove, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    // Initialize Firebase app and services
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Global variables to store current user and their data
+    let currentUser = null;
+    let currentUserData = null;
+
+    // Get references to DOM elements
+    const teamNameSpan = document.getElementById("teamName");
+    const teamCodeSpan = document.getElementById("teamCode");
+    const leaderUIDSpan = document.getElementById("leaderUID");
+    const teamMembersList = document.getElementById("teamMembersList");
+    const removeMemberBtn = document.getElementById("removeMemberByUidBtn");
+    const disbandTeamBtn = document.getElementById("disbandTeamBtn");
+    const leaderActionsDiv = document.getElementById("leaderActions");
+
+    // New Team Records elements
+    const teamKillsSpan = document.getElementById("teamKills");
+    const teamMatchesSpan = document.getElementById("teamMatches");
+    const teamRankingPointsSpan = document.getElementById("teamRankingPoints");
+    const teamWinsSpan = document.getElementById("teamWins");
+    const teamCreatedAtSpan = document.getElementById("teamCreatedAt");
+
+
+    // Modal elements
+    const customModal = document.getElementById("customModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+    const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+    const modalCancelBtn = document.getElementById("modalCancelBtn");
+    const modalOkBtn = document.getElementById("modalOkBtn");
+
+    // Function to show a custom alert/message modal
+    function showMessageModal(title, message, type = 'alert') {
+      return new Promise((resolve) => {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+
+        // Reset button visibility
+        modalConfirmBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.style.display = 'none';
+
+        // Set up buttons based on type
+        if (type === 'confirm') {
+          modalConfirmBtn.style.display = 'inline-block';
+          modalCancelBtn.style.display = 'inline-block';
+          modalConfirmBtn.onclick = () => {
+            customModal.style.display = 'none';
+            resolve(true);
+          };
+          modalCancelBtn.onclick = () => {
+            customModal.style.display = 'none';
+            resolve(false);
+          };
+        } else { // 'alert' type
+          modalOkBtn.style.display = 'inline-block';
+          modalOkBtn.onclick = () => {
+            customModal.style.display = 'none';
+            resolve(true); // Always resolve true for alert, as there's no "cancel"
+          };
+        }
+        customModal.style.display = 'flex'; // Use flex to center content
+      });
+    }
+
+    // Authenticate user and load data
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        await loadUser();
+      } else {
+        // If not logged in, show message and redirect
+        await showMessageModal("Authentication Required", "You are not logged in. Redirecting to login page...");
+        window.location.href = "l.html"; // Redirect to login page
+      }
+    });
+
+    // Load current user's data from Firestore
+    async function loadUser() {
+      try {
+        const q = query(collection(db, "users"), where("firebaseUID", "==", currentUser.uid));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          await showMessageModal("Error", "User data not found.");
+          return;
+        }
+
+        const userDoc = snap.docs[0];
+        currentUserData = userDoc.data();
+
+        // Check if the current user is a team creator
+        if (currentUserData.isTeamCreator) {
+          removeMemberBtn.style.display = 'inline-block'; // Show remove button
+          disbandTeamBtn.style.display = 'inline-block'; // Show disband button
+        } else {
+          removeMemberBtn.style.display = 'none'; // Hide remove button
+          disbandTeamBtn.style.display = 'none'; // Hide disband button
+        }
+
+        // If user is not part of a team, update UI accordingly
+        if (!currentUserData?.teamCode) {
+          teamNameSpan.textContent = "N/A";
+          teamCodeSpan.textContent = "N/A";
+          leaderUIDSpan.textContent = "N/A";
+          teamMembersList.innerHTML = "<tr><td colspan='4'>Not part of any team.</td></tr>";
+          // Hide team records if not in a team
+          document.querySelector('.team-records-card').style.display = 'none';
+          return;
+        } else {
+          document.querySelector('.team-records-card').style.display = 'grid'; // Show team records
+        }
+
+        // Load team information if user is in a team
+        await loadTeam();
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        await showMessageModal("Error", "Failed to load user data.");
+      }
+    }
+
+    // Load team details and members from Firestore
+    async function loadTeam() {
+      try {
+        const teamRef = doc(db, "teams", currentUserData.teamCode);
+        const teamSnap = await getDoc(teamRef);
+
+        if (!teamSnap.exists()) {
+          await showMessageModal("Error", "Team not found.");
+          return;
+        }
+
+        const team = teamSnap.data();
+
+        // Update team info in the UI
+        teamNameSpan.textContent = team.teamName || "-";
+        teamCodeSpan.textContent = team.teamCode || "-";
+        leaderUIDSpan.textContent = team.leaderUID || "-";
+
+        // Update Team Records card
+        teamKillsSpan.textContent = team.kills ?? 0;
+        teamMatchesSpan.textContent = team.matches ?? 0;
+        teamRankingPointsSpan.textContent = team.rankingPoints ?? 0;
+        teamWinsSpan.textContent = team.wins ?? 0;
+        teamCreatedAtSpan.textContent = team.createdAt ? new Date(team.createdAt.seconds * 1000).toLocaleString() : "-"; // Convert Firestore Timestamp to readable date
+
+        teamMembersList.innerHTML = ""; // Clear existing list
+
+        // Populate team members table
+        if (team.members && team.members.length > 0) {
+          for (let uid of team.members) {
+            const memberRef = doc(db, "users", uid);
+            const memberSnap = await getDoc(memberRef);
+            if (!memberSnap.exists()) {
+              console.warn(`Member with UID ${uid} not found.`);
+              continue;
+            }
+            const member = memberSnap.data();
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${member.ign || "-"}</td>
+              <td>${member.uid || "-"}</td>
+              <td>${member.playerKills ?? 0}</td>
+              <td>${member.playerMatches ?? 0}</td>
+            `;
+            teamMembersList.appendChild(row);
+          }
+        } else {
+          teamMembersList.innerHTML = "<tr><td colspan='4'>No members found.</td></tr>";
+        }
+      } catch (error) {
+        console.error("Error loading team data:", error);
+        await showMessageModal("Error", "Failed to load team data.");
+      }
+    }
+
+    // Event listener for removing a member
+    removeMemberBtn.addEventListener("click", async () => {
+      // Ensure only team creator can perform this action
+      if (!currentUserData || !currentUserData.isTeamCreator) {
+        await showMessageModal("Unauthorized", "Only the team leader can remove members.");
+        return;
+      }
+
+      const uidToRemove = prompt("Enter Game UID of the member to remove:"); // Using prompt for input, but a custom input modal would be better
+      if (!uidToRemove || uidToRemove.trim() === "") {
+        await showMessageModal("Invalid Input", "Please enter a valid UID.");
+        return;
+      }
+      if (uidToRemove === currentUserData.uid) {
+        await showMessageModal("Action Not Allowed", "You cannot remove yourself from the team this way. To leave, disband the team if you are the leader.");
+        return;
+      }
+
+      try {
+        const memberRef = doc(db, "users", uidToRemove);
+        const memberSnap = await getDoc(memberRef);
+
+        if (!memberSnap.exists()) {
+          await showMessageModal("Error", "Member not found.");
+          return;
+        }
+
+        const memberData = memberSnap.data();
+        if (memberData.teamCode !== currentUserData.teamCode) {
+          await showMessageModal("Error", "This user is not in your team.");
+          return;
+        }
+
+        const confirmRemove = await showMessageModal("Confirm Removal", `Are you sure you want to remove ${memberData.ign || memberData.uid} from the team?`, 'confirm');
+        if (!confirmRemove) return;
+
+        // Update the removed member's user document
+        await updateDoc(memberRef, {
+          teamCode: "",
+          teamName: "",
+          isTeamCreator: false,
+          teamCreatorUID: ""
+        });
+
+        // Remove the member from the team's document
+        await updateDoc(doc(db, "teams", currentUserData.teamCode), {
+          members: arrayRemove(uidToRemove)
+        });
+
+        await showMessageModal("Success", "Member removed successfully.");
+        await loadTeam(); // Reload team data to update the UI
+      } catch (err) {
+        console.error("Error removing member:", err);
+        await showMessageModal("Error", "Error removing member. Please try again.");
+      }
+    });
+
+    // Event listener for disbanding the team
+    disbandTeamBtn.addEventListener("click", async () => {
+      // Ensure only team creator can perform this action
+      if (!currentUserData || !currentUserData.isTeamCreator) {
+        await showMessageModal("Unauthorized", "Only the team leader can disband the team.");
+        return;
+      }
+
+      const confirmDisband = await showMessageModal("Confirm Disband", "Are you sure you want to disband the team? This action cannot be undone.", 'confirm');
+      if (!confirmDisband) return;
+
+      try {
+        const teamRef = doc(db, "teams", currentUserData.teamCode);
+        const teamSnap = await getDoc(teamRef);
+        if (!teamSnap.exists()) {
+          await showMessageModal("Error", "Team not found.");
+          return;
+        }
+
+        const team = teamSnap.data();
+        // Iterate through all members and remove them from the team
+        for (const uid of team.members || []) {
+          await updateDoc(doc(db, "users", uid), {
+            teamCode: "",
+            teamName: "",
+            teamCreatorUID: "",
+            isTeamCreator: false
+          });
+        }
+
+        // Delete the team document
+        await deleteDoc(teamRef);
+
+        await showMessageModal("Success", "Team disbanded successfully.");
+        window.location.reload(); // Reload the page to reflect changes (user will no longer be in a team)
+      } catch (e) {
+        console.error("Error disbanding team:", e);
+        await showMessageModal("Error", "Error disbanding team. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

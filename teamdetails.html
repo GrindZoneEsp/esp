@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Options - GrindZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f9fafe;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #1f2937;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    header img {
+      width: 50px;
+      height: 50px;
+      margin-right: 12px;
+      border-radius: 50%;
+      border: 2px solid #3b82f6;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #2563eb;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #1e3a8a;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 14px 30px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 90%;
+      max-width: 300px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #2563eb;
+    }
+
+    .skip {
+      margin-top: 30px;
+      font-size: 15px;
+      color: #64748b;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+
+    .skip:hover {
+      color: #1e40af;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #475569;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header / Branding -->
+  <header>
+    <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GrindZone Logo" />
+    <h1>GrindZone</h1>
+  </header>
+
+  <h2>What would you like to do?</h2>
+
+  <!-- Options -->
+  <button class="btn" onclick="location.href='c.html'">Create a Team</button>
+  <button class="btn" onclick="location.href='j.html'">Join a Team</button>
+
+  <!-- Skip Option -->
+  <div class="skip" onclick="location.href='main.html'">Skip for Now →</div>
+  <div class="note">You can do it later from the main menu.</div>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Player Info - GrindZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f9fafe;
+      color: #1f2937;
+      font-family: 'Inter', sans-serif;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    header img {
+      width: 50px;
+      height: 50px;
+      margin-right: 12px;
+      border: 2px solid #3b82f6;
+      object-fit: cover;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2563eb;
+    }
+
+    h2 {
+      color: #1e40af;
+      margin-bottom: 6px;
+      font-size: 1.4rem;
+    }
+
+    .sub-note {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 20px;
+      text-align: center;
+      max-width: 340px;
+    }
+
+    input, button {
+      width: 100%;
+      max-width: 360px;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input {
+      background-color: #e0e7ff;
+      color: #111827;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .roles-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 360px;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .role-option {
+      background-color: #e0e7ff;
+      color: #1e3a8a;
+      border: 1px solid #93c5fd;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .role-option.selected {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 20px;
+      display: block;
+      text-align: center;
+    }
+
+    .info-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .footer-note {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #64748b;
+      text-align: center;
+      max-width: 340px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Branding -->
+  <header>
+    <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GrindZone Logo" />
+    <h1>GrindZone</h1>
+  </header>
+
+  <h2>Enter Player Info</h2>
+  <div class="sub-note">💡 Keep your in-game name (IGN) and your actual IGN the same — we use it for verification.</div>
+
+  <div class="info-box">
+    <input type="text" id="realName" placeholder="Your Real Name" />
+    <input type="text" id="ign" placeholder="In-Game Name (IGN)" />
+    <input type="text" id="uid" placeholder="Your Game UID (must be unique)" />
+    <input type="text" id="mobile" placeholder="Mobile Number" />
+
+    <label>Choose up to 3 Roles:</label>
+    <div class="roles-container" id="roleOptions">
+      <div class="role-option" data-role="IGL">IGL</div>
+      <div class="role-option" data-role="Sniper">Sniper</div>
+      <div class="role-option" data-role="Assaulter">Assaulter</div>
+      <div class="role-option" data-role="Rusher">Rusher</div>
+      <div class="role-option" data-role="All-Rounder">All-Rounder</div>
+    </div>
+
+    <button id="submitBtn">Submit Info</button>
+  </div>
+
+  <div class="footer-note">📌 You can update this info anytime later from your profile.</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const selectedRoles = [];
+    document.querySelectorAll(".role-option").forEach(el => {
+      el.addEventListener("click", () => {
+        const role = el.dataset.role;
+        if (el.classList.contains("selected")) {
+          el.classList.remove("selected");
+          selectedRoles.splice(selectedRoles.indexOf(role), 1);
+        } else {
+          if (selectedRoles.length < 3) {
+            el.classList.add("selected");
+            selectedRoles.push(role);
+          } else {
+            alert("You can select up to 3 roles only.");
+          }
+        }
+      });
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const realName = document.getElementById("realName").value.trim();
+      const ign = document.getElementById("ign").value.trim();
+      const uid = document.getElementById("uid").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+
+      if (!realName || !ign || !uid || !mobile || selectedRoles.length === 0) {
+        alert("Please fill all fields and select at least one role.");
+        return;
+      }
+
+      const userDocRef = doc(db, "users", uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        alert("A user with this Game UID already exists. Please use a unique UID.");
+        return;
+      }
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          try {
+            await setDoc(userDocRef, {
+              realName,
+              ign,
+              uid,
+              mobile,
+              roles: selectedRoles,
+              email: user.email || "",
+              firebaseUID: user.uid,
+              playerKills: 0,
+              playerMatches: 0,
+              avgKills: 0.0,
+              isTeamCreator: false,
+              teamCode: "",
+              teamName: "",
+              teamCreatorUID: "",
+              timestamp: new Date()
+            });
+            alert("✅ Player info saved successfully!");
+            window.location.href = "teamdetails.html";
+          } catch (err) {
+            alert("❌ Error saving info: " + err.message);
+          }
+        } else {
+          alert("⚠️ You are not logged in.");
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Free Fire Teams Rankings</title>
+<!-- Google Fonts and Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 12px;
+  }
+  h1 {
+    font-weight: 800;
+    font-size: 2.25rem;
+    margin-bottom: 20px;
+    color: #00eaff;
+    text-align: center;
+  }
+  .tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab-button {
+    background: none;
+    border: none;
+    color: #888;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+  }
+  .tab-button.active {
+    color: #00eaff;
+    background: rgba(0,234,255,0.1);
+    box-shadow: inset 0 -2px 0 0 #00eaff;
+  }
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    max-width: 1000px;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    table-layout: fixed;
+  }
+  thead tr {
+    border-bottom: 2px solid #2c2c2c;
+  }
+  thead th {
+    font-weight: 700;
+    padding: 12px;
+    text-align: left;
+    color: #00eaff;
+  }
+  tbody tr {
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,234,255,0.15);
+    transition: transform 0.2s ease;
+  }
+  tbody tr:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,234,255,0.25);
+  }
+  tbody td {
+    padding: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    thead {
+      display: none;
+    }
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      white-space: normal;
+    }
+    tbody td::before {
+      flex-basis: 40%;
+      content: attr(data-label);
+      font-weight: 700;
+      color: #00eaff;
+    }
+    tbody tr {
+      display: block;
+      padding: 8px 12px;
+      margin-bottom: 18px;
+    }
+  }
+  .placeholder-message {
+    margin-top: 30px;
+    font-size: 1.1rem;
+    color: #555;
+    font-style: italic;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1 style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+  <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GrindZone Logo" style="height: 60px; width: auto;" />
+   Rankings
+</h1>
+ <nav class="tabs" role="tablist" aria-label="Leaderboard Tabs">
+    <button class="tab-button active" role="tab" aria-selected="true" id="tab-teams" aria-controls="teams-panel" data-tab="teams" tabindex="0">
+      <span class="material-icons" aria-hidden="true">groups</span> Teams
+    </button>
+    <button class="tab-button" role="tab" aria-selected="false" id="tab-players" aria-controls="players-panel" data-tab="players" tabindex="-1">
+      <span class="material-icons" aria-hidden="true">person</span> Players
+    </button>
+  </nav>
+  <section id="teams-panel" role="tabpanel" aria-labelledby="tab-teams">
+    <div class="table-container">
+      <table aria-label="Teams Leaderboard">
+        <thead>
+          <tr>
+            <th scope="col">Team Name</th>
+            <th scope="col">Ranking Points</th>
+            <th scope="col">Wins</th>
+            <th scope="col">Kills</th>
+          </tr>
+        </thead>
+        <tbody id="teams-body"></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="players-panel" role="tabpanel" aria-labelledby="tab-players" hidden>
+    <div class="table-container">
+      <table aria-label="Players Leaderboard">
+        <thead>
+          <tr>
+            <th scope="col">Player Name</th>
+            <th scope="col">Kills</th>
+            <th scope="col">Matches</th>
+            <th scope="col">Avg Kills</th>
+          </tr>
+        </thead>
+        <tbody id="players-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Firebase SDKs (Modular v10.12.2) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+    // Initialize Firebase app and services
+    console.log("Initializing Firebase app...");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    console.log("Firebase app and services initialized.");
+
+    const tabs = document.querySelectorAll('.tab-button');
+    const panels = {
+      'teams': document.getElementById('teams-panel'),
+      'players': document.getElementById('players-panel')
+    };
+
+    // Function to handle tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+          t.tabIndex = -1;
+          panels[t.dataset.tab].hidden = true;
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        tab.tabIndex = 0;
+        panels[tab.dataset.tab].hidden = false;
+
+        // Load data based on the active tab
+        if (tab.dataset.tab === 'teams') {
+          console.log("Tab switched to Teams. Loading teams leaderboard...");
+          loadTeamsLeaderboard();
+        } else if (tab.dataset.tab === 'players') {
+          console.log("Tab switched to Players. Loading players leaderboard...");
+          loadPlayersLeaderboard();
+        }
+      });
+    });
+
+    // Function to load Teams Leaderboard data
+    async function loadTeamsLeaderboard() {
+      console.log("Attempting to load teams leaderboard data...");
+      try {
+        // Fetch all teams from Firestore
+        const teamsCollectionRef = collection(db, 'teams');
+        const snapshot = await getDocs(teamsCollectionRef);
+        const teams = [];
+        snapshot.forEach(doc => {
+          teams.push(doc.data());
+        });
+        console.log("Teams data fetched:", teams);
+
+        // Sort teams by ranking points (descending), then by wins (descending)
+        teams.sort((a, b) => {
+          if ((b.rankingPoints ?? 0) !== (a.rankingPoints ?? 0)) {
+            return (b.rankingPoints ?? 0) - (a.rankingPoints ?? 0);
+          }
+          return (b.wins ?? 0) - (a.wins ?? 0);
+        });
+        renderTeams(teams);
+      } catch(e) {
+        console.error('Failed to load teams leaderboard:', e);
+        document.getElementById('teams-body').innerHTML = `<tr><td colspan="4" class="placeholder-message">Error loading teams leaderboard. Please try again.</td></tr>`;
+      }
+    }
+
+    // Function to render Teams Leaderboard data into the table
+    function renderTeams(teams) {
+      console.log("Rendering teams:", teams.length);
+      const tbody = document.getElementById('teams-body');
+      tbody.innerHTML = ''; // Clear existing content
+      if (teams.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="placeholder-message">No team data available.</td></tr>`;
+        return;
+      }
+      teams.forEach(team => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="Team Name">${team.teamName || '-'}</td>
+          <td data-label="Ranking Points">${team.rankingPoints ?? 0}</td>
+          <td data-label="Wins">${team.wins ?? 0}</td>
+          <td data-label="Kills">${team.kills ?? 0}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Function to load Players Leaderboard data
+    async function loadPlayersLeaderboard() {
+      console.log("Attempting to load players leaderboard data...");
+      try {
+        // Fetch all users (players) from Firestore
+        const usersCollectionRef = collection(db, 'users');
+        const snapshot = await getDocs(usersCollectionRef);
+        const players = [];
+        snapshot.forEach(doc => {
+          players.push(doc.data());
+        });
+        console.log("Players data fetched:", players);
+
+        // Sort players by playerKills (descending), then by avgKills (descending)
+        players.sort((a, b) => {
+          if ((b.playerKills ?? 0) !== (a.playerKills ?? 0)) {
+            return (b.playerKills ?? 0) - (a.playerKills ?? 0);
+          }
+          return (b.avgKills ?? 0.0) - (a.avgKills ?? 0.0);
+        });
+        renderPlayers(players);
+      } catch(e) {
+        console.error('Failed to load players leaderboard:', e);
+        document.getElementById('players-body').innerHTML = `<tr><td colspan="4" class="placeholder-message">Error loading players leaderboard. Please try again.</td></tr>`;
+      }
+    }
+
+    // Function to render Players Leaderboard data into the table
+    function renderPlayers(players) {
+      console.log("Rendering players:", players.length);
+      const tbody = document.getElementById('players-body');
+      tbody.innerHTML = ''; // Clear existing content
+      if (players.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="placeholder-message">No player data available.</td></tr>`;
+        return;
+      }
+      players.forEach(player => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="Player Name">${player.ign || player.realName || '-'}</td>
+          <td data-label="Kills">${player.playerKills ?? 0}</td>
+          <td data-label="Matches">${player.playerMatches ?? 0}</td>
+          <td data-label="Avg Kills">${(player.avgKills ?? 0.0).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Ensure authentication before loading leaderboards
+    onAuthStateChanged(auth, async (user) => {
+      console.log("onAuthStateChanged fired. User:", user ? user.uid : "null");
+      if (user) {
+        // User is authenticated, load the default leaderboard (Teams)
+        console.log("User authenticated. Loading default leaderboard...");
+        loadTeamsLeaderboard();
+      } else {
+        // No user is authenticated, try anonymous sign-in
+        try {
+          console.log("No user authenticated. Attempting anonymous sign-in...");
+          await signInAnonymously(auth);
+          console.log("Anonymous sign-in initiated. onAuthStateChanged will re-fire.");
+          // onAuthStateChanged will re-fire with the anonymous user, then loadTeamsLeaderboard will be called
+        } catch (err) {
+          console.error("Anonymous sign-in failed for leaderboard:", err);
+          // Display a message if authentication fails
+          document.getElementById('teams-body').innerHTML = `<tr><td colspan="4" class="placeholder-message">Please log in or check your connection to view leaderboards.</td></tr>`;
+          document.getElementById('players-body').innerHTML = `<tr><td colspan="4" class="placeholder-message">Please log in or check your connection to view leaderboards.</td></tr>`;
+        }
+      }
+    });
+
+    // Initial load of the active tab content (Teams)
+    // This will be triggered by onAuthStateChanged once authentication is ready.
+  </script>
+</body>
+</html>

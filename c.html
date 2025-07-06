@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Team - GrindZone</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #f9fafe;
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+      color: #1f2937;
+      text-align: center;
+    }
+
+    h2 {
+      color: #2563eb;
+      margin-bottom: 24px;
+    }
+
+    input, button {
+      padding: 12px;
+      margin: 12px auto;
+      border: none;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 340px;
+      display: block;
+      font-size: 1rem;
+    }
+
+    input {
+      background-color: #e0e7ff;
+      color: #111827;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ef4444;
+    }
+
+    #teamCodeContainer {
+      margin-top: 32px;
+      background-color: #e0f2fe;
+      border: 2px dashed #3b82f6;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #teamCodeBox {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      margin-bottom: 10px;
+      color: #0c4a6e;
+      user-select: all;
+    }
+
+    #teamNote {
+      font-size: 0.9rem;
+      color: #1e40af;
+      margin-bottom: 12px;
+      padding: 0 10px;
+    }
+
+    #copyBtn, #mainPageBtn {
+      background-color: #0ea5e9;
+      color: white;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    #copyBtn:hover, #mainPageBtn:hover {
+      background-color: #0284c7;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Create Your Team</h2>
+  <input id="teamName" placeholder="Team Name" />
+  <button id="createBtn" onclick="createTeam()">Create Team</button>
+
+  <div id="teamCodeContainer" style="display:none;">
+    <div id="teamCodeBox" title="Click to copy team code"></div>
+    <div id="teamNote">🔒 Keep this code inside you and your team. Do not share it with anyone.</div>
+    <button id="copyBtn" onclick="copyTeamCode()">Copy Team Code</button>
+    <button id="mainPageBtn" onclick="goToMainPage()">Go to Main Page</button>
+  </div>
+
+  <p id="status"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    async function createTeam() {
+      const teamName = document.getElementById("teamName").value.trim();
+      const status = document.getElementById("status");
+      const currentUser = auth.currentUser;
+
+      status.textContent = "";
+      hideTeamCode();
+
+      if (!teamName) {
+        status.textContent = "❗ Please enter a Team Name.";
+        return;
+      }
+
+      if (!currentUser) {
+        status.textContent = "❌ You must be logged in to create a team.";
+        return;
+      }
+
+      try {
+        const uid = currentUser.uid;
+        const userSnap = await db.collection("users").where("firebaseUID", "==", uid).get();
+
+        if (userSnap.empty) {
+          status.textContent = "❗ No user found in database.";
+          return;
+        }
+
+        const userRef = userSnap.docs[0].ref;
+        const userData = userSnap.docs[0].data();
+
+        if (userData.isTeamCreator) {
+          status.textContent = "❗ You already created a team.";
+          return;
+        }
+
+        const gameUID = userData.uid;
+        const teamCode = generateTeamCode(9); // generate longer 9-character code
+
+        const teamData = {
+          teamName: teamName,
+          teamCode: teamCode,
+          leaderUID: gameUID,
+          members: [gameUID],
+          kills: 0,
+          wins: 0,
+          matches: 0,
+          rankingPoints: 0,
+          requests: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        };
+
+        await db.collection("teams").doc(teamCode).set(teamData);
+
+        await userRef.update({
+          teamCode: teamCode,
+          teamName: teamName,
+          teamCreatorUID: gameUID,
+          isTeamCreator: true,
+        });
+
+        status.textContent = "";
+        showTeamCode(teamCode);
+      } catch (error) {
+        console.error("Error creating team:", error);
+        status.textContent = "❌ Error creating team. Try again.";
+      }
+    }
+
+    function generateTeamCode(length = 8) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    function showTeamCode(code) {
+      document.getElementById("teamCodeBox").textContent = code;
+      document.getElementById("teamCodeContainer").style.display = "block";
+      document.getElementById("createBtn").disabled = true;
+    }
+
+    function hideTeamCode() {
+      document.getElementById("teamCodeContainer").style.display = "none";
+      document.getElementById("createBtn").disabled = false;
+    }
+
+    function copyTeamCode() {
+      const codeBox = document.getElementById("teamCodeBox");
+      navigator.clipboard.writeText(codeBox.textContent).then(() => {
+        alert("Team code copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy team code.");
+      });
+    }
+
+    function goToMainPage() {
+      window.location.href = "main.html";
+    }
+  </script>
+
+</body>
+</html>

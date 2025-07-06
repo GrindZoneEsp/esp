@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GrindZone - Main Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafe;
+      color: #1f2937;
+      padding: 1rem;
+    }
+
+    .compact-action-item {
+      background-color: #e7ecff;
+      border: 1px solid #c3dafe;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .card-item {
+      background-color: #ffffff;
+      border: 1px solid #dbeafe;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .card-item:hover {
+      background-color: #f0f4ff;
+    }
+
+    @media (min-width: 640px) {
+      .nav-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .nav-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mx-auto max-w-lg">
+    <!-- Header -->
+    <header class="flex items-center justify-center py-6 mb-4">
+      <img src="https://i.ibb.co/LhxDvVJk/grindzone.png" alt="GrindZone Logo" class="w-14 h-14 mr-3 rounded-full border-2 border-blue-500 shadow-md" />
+      <h1 class="text-3xl font-bold text-blue-600">GrindZone</h1>
+    </header>
+
+    <!-- Player Info + Search -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+      <!-- Player Info -->
+      <a href="profile.html" class="w-full sm:w-auto mb-4 sm:mb-0 sm:mr-4 compact-action-item">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white mr-3">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div>
+            <p id="playerName" class="text-base font-semibold text-blue-800">Click here to see your profile</p>
+            <span id="playerID" class="text-sm text-blue-500"></span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Search -->
+      <a href="search.html" class="w-full sm:w-auto compact-action-item">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white mr-3">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 5L20.49 19l-5-5zm-6 0A4.5 4.5 0 1114 9.5 4.505 4.505 0 019.5 14z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-base font-semibold text-blue-800">Search</p>
+            <span class="text-sm text-blue-500">Find players & teams</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Navigation Grid -->
+    <nav>
+      <h2 class="text-xl font-bold text-blue-700 mb-4 text-center">Explore</h2>
+<div class="grid grid-cols-1 gap-4 nav-grid">
+  <!-- Tournaments -->
+  <a href="tournament.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-blue-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 
+        2-2V4c0-1.1-.9-2-2-2zM6 4h12v2H6V4zm12 16H6v-2h12v2zm0-4H6V8h12v8z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">Tournaments</p>
+    <span class="text-sm text-blue-500">Compete and win!</span>
+  </a>
+
+  <!-- Manage Team -->
+  <a href="teaminfo.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-green-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 
+        1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 
+        2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 
+        8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 
+        3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 
+        0c-.29 0-.62.02-.97.05 1.73.66 
+        2.97 1.97 2.97 3.45V19h3v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">Manage Team</p>
+    <span class="text-sm text-blue-500">Edit your squad</span>
+  </a>
+
+  <!-- Leaderboard -->
+  <a href="leaderboard.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-yellow-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 
+        9v11h4V9h-4z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">Leaderboard</p>
+    <span class="text-sm text-blue-500">Top players</span>
+  </a>
+
+  <!-- Join/Create -->
+  <a href="teamdetails.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-purple-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M15 12c2.21 0 4-1.79 
+        4-4s-1.79-4-4-4-4 1.79-4 4 
+        1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 
+        4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">Join/Create Team</p>
+    <span class="text-sm text-blue-500">Find your squad</span>
+  </a>
+
+  <!-- About Us -->
+  <a href="about.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-blue-400 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M11 17h2v-6h-2v6zm0-8h2V7h-2v2zm1-7C6.48 2 2 
+        6.48 2 12s4.48 10 10 10 10-4.48 
+        10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 
+        8-8 8 3.59 8 8-3.59 8-8 8z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">About Us</p>
+    <span class="text-sm text-blue-500">Learn what GrindZone is</span>
+  </a>
+  <!-- Rules -->
+  <a href="rules.html" class="card-item text-center">
+    <svg class="w-10 h-10 text-red-500 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+               10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/>
+    </svg>
+    <p class="text-lg font-semibold text-blue-800">Rules</p>
+    <span class="text-sm text-blue-500">Read before playing</span>
+  </a>
+
+</div>
+
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgqgQDWEwohMJnhTcUhBx6chmXOUMSanw",
+      authDomain: "grindzone-26ee9.firebaseapp.com",
+      projectId: "grindzone-26ee9",
+      storageBucket: "grindzone-26ee9.appspot.com",
+      messagingSenderId: "457720848561",
+      appId: "1:457720848561:web:f2cde2e7e7542b2a9d8290"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const nameEl = document.getElementById("playerName");
+    const uidEl = document.getElementById("playerID");
+
+    function resetProfileMessage() {
+      nameEl.textContent = "Click here to see your profile";
+      uidEl.textContent = "";
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        await signInAnonymously(auth);
+        resetProfileMessage();
+        return;
+      }
+
+      try {
+        const q = query(collection(db, "users"), where("firebaseUID", "==", user.uid));
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+          const data = snap.docs[0].data();
+          nameEl.textContent = data.realName || "Unnamed";
+          uidEl.textContent = "UID: " + (data.uid || "N/A");
+
+          // Show for 5 seconds, then reset
+          setTimeout(() => {
+            resetProfileMessage();
+          }, 5000);
+        } else {
+          resetProfileMessage();
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        resetProfileMessage();
+      }
+    });
+  </script>
+
+</body>
+</html>
